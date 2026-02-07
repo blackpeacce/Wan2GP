@@ -359,6 +359,27 @@ def process_prompt_and_add_tasks(state, current_gallery_tab, model_choice):
     if model_choice != model_type or inputs ==None:
         raise gr.Error("Webform can not be used as the App has been restarted since the form was displayed. Please refresh the page")
     
+    # Capture source image paths BEFORE validate_settings converts them to PIL Images
+    # These paths come from Gradio's temp folder and can be used to reload images later
+    source_image_paths = {}
+    for key in ATTACHMENT_KEYS:
+        value = inputs.get(key)
+        if value is not None:
+            if isinstance(value, str):
+                source_image_paths[key] = value
+            elif isinstance(value, (list, tuple)):
+                paths = []
+                for item in value:
+                    if isinstance(item, str):
+                        paths.append(item)
+                    elif isinstance(item, tuple) and len(item) > 0 and isinstance(item[0], str):
+                        paths.append(item[0])
+                if paths:
+                    source_image_paths[key] = paths if len(paths) > 1 else paths[0]
+    
+    inputs["plugin_data"] = inputs.get("plugin_data", {})
+    inputs["plugin_data"]["source_image_paths"] = source_image_paths
+
     inputs["state"] =  state
     inputs["model_type"] = model_type
     inputs.pop("lset_name", None)
