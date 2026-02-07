@@ -394,7 +394,7 @@ class PluginManagerUIPlugin(WAN2GPPlugin):
             with gr.Row(equal_height=False, variant='panel'):
                 with gr.Column(scale=2, min_width=600):
                     gr.Markdown("### Plugins Available Locally (Drag to reorder tabs)")
-                    self.plugins_html_display = gr.HTML()
+                    self.plugins_html_display = gr.HTML(value="<p style='text-align:center; color: var(--text-color-secondary);'>Loading plugins...</p>")
                     with gr.Row(elem_classes="save-buttons-container"):
                         self.save_plugins_button = gr.Button("Save", variant="secondary", size="sm", scale=0, elem_classes="stylish-save-btn")
                         self.save_and_restart_button = gr.Button("Save and Restart", variant="primary", size="sm", scale=0, elem_classes="stylish-save-btn")
@@ -402,7 +402,7 @@ class PluginManagerUIPlugin(WAN2GPPlugin):
                 with gr.Column(scale=2, min_width=300):
                     gr.Markdown("### Discover & Install")
                     
-                    self.community_plugins_html = gr.HTML()
+                    self.community_plugins_html = gr.HTML(value="<p style='text-align:center; color: var(--text-color-secondary);'>Loading community plugins...</p>")
                     
                     with gr.Accordion("Install from URL", open=True):
                         with gr.Group():
@@ -475,7 +475,7 @@ class PluginManagerUIPlugin(WAN2GPPlugin):
             gr.Info("One Plugin Update is available")
         else:
             gr.Info(f"{updates_available} Plugin Updates are available")
-        return self._build_plugins_html(), self._build_community_plugins_html()
+        return gr.update(value=self._build_plugins_html()), gr.update(value=self._build_community_plugins_html())
 
     def _count_available_updates(self) -> int:
         try:
@@ -555,7 +555,7 @@ class PluginManagerUIPlugin(WAN2GPPlugin):
             gr.Info(result_message)
         else:
             gr.Warning(result_message)
-        return self._build_plugins_html(), self._build_community_plugins_html(), ""
+        return gr.update(value=self._build_plugins_html()), gr.update(value=self._build_community_plugins_html()), ""
 
     def _handle_plugin_action_from_json(self, payload_str: str, progress=gr.Progress()):
         if not payload_str:
@@ -604,4 +604,4 @@ class PluginManagerUIPlugin(WAN2GPPlugin):
         if hasattr(self, '_community_plugins_cache'):
             del self._community_plugins_cache
 
-        return self._build_plugins_html(), self._build_community_plugins_html()
+        return gr.update(value=self._build_plugins_html()), gr.update(value=self._build_community_plugins_html())
