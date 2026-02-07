@@ -292,6 +292,12 @@ class WAN2GPPlugin:
             )
         )
 
+    def get_allowed_paths(self) -> List[str]:
+        """Return a list of file paths that should be accessible via Gradio file serving.
+        Override this method in your plugin to add custom directories (e.g., for image sources).
+        """
+        return []
+
 class PluginManager:
     def __init__(self, plugins_dir="plugins"):
         self.plugins: Dict[str, WAN2GPPlugin] = {}
@@ -1140,6 +1146,18 @@ class PluginManager:
             return ""
         return "\n".join(self.custom_js_snippets)
 
+    def get_allowed_paths(self) -> List[str]:
+        """Collect and return all allowed paths from all loaded plugins."""
+        paths = []
+        for plugin_id, plugin in self.plugins.items():
+            try:
+                plugin_paths = plugin.get_allowed_paths()
+                if plugin_paths:
+                    paths.extend(plugin_paths)
+            except Exception as e:
+                print(f"[PluginManager] Error getting allowed paths from {plugin_id}: {e}")
+        return paths
+
     def inject_globals(self, global_references: Dict[str, Any]) -> None:
         for plugin_id, plugin in self.plugins.items():
             try:
@@ -1394,3 +1412,9 @@ class WAN2GPApplication:
     def run_component_insertion(self, components_dict: Dict[str, Any]):
         if hasattr(self, 'plugin_manager'):
             self.plugin_manager.run_component_insertion_and_setup(components_dict)
+
+    def get_allowed_paths(self) -> List[str]:
+        """Get additional allowed paths from all loaded plugins."""
+        if hasattr(self, 'plugin_manager'):
+            return self.plugin_manager.get_allowed_paths()
+        return []

@@ -11544,5 +11544,5 @@ if __name__ == "__main__":
         server_name=server_name,
         server_port=server_port,
         share=args.share,
-        allowed_paths=list({save_path, image_save_path, audio_save_path, "icons"}),
+        allowed_paths=list({save_path, image_save_path, audio_save_path, "icons"} | set(app.get_allowed_paths())),
     )
